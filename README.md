@@ -100,14 +100,14 @@ Leader在任期内必须定期向集群的其他节点发送心跳包，昭告�
 
 ### AppendEntries RPC
 
-| 参数         | 描述                                                                                          |
-|:------------:|:---------------------------------------------------------------------------------------------:|
-| term         | 领导人的任期号                                                                                |
-| leaderId     | 领导人的ID,为了其他Raft节点能够重定向客户端请求                                               |
-| prevLogIndex | 本次AppendEntries RPC新增日志的前一个位置的日志的索引值                                       |
-| prevLogTerm  | 本次AppendEntries RPC新增日志的前一个位置的日志的任期号                                       |
-| entries[]    | 将要追加到Follwer上的日志条目，发生心跳包的时候为空，有时会为了效率而向多个节点并发发送       |
-| leaderCommit | 领导人会为每个Follwer都维护一个LeaderCommit,表示领导人认为Follwer已经提及偶啊的日志条目索引值 |
+| 参数         | 描述                                                                                      |
+|:------------:|:-----------------------------------------------------------------------------------------:|
+| term         | 领导人的任期号                                                                            |
+| leaderId     | 领导人的ID,为了其他Raft节点能够重定向客户端请求                                           |
+| prevLogIndex | 本次AppendEntries RPC新增日志的前一个位置的日志的索引值                                   |
+| prevLogTerm  | 本次AppendEntries RPC新增日志的前一个位置的日志的任期号                                   |
+| entries[]    | 将要追加到Follwer上的日志条目，发生心跳包的时候为空，有时会为了效率而向多个节点并发发送   |
+| leaderCommit | 领导人会为每个Follwer都维护一个LeaderCommit,表示领导人认为Follwer已经提交的日志条目索引值 |
 
 
 | 返回值  | 描述                                                                                                                                                                                                                                        |
@@ -121,7 +121,7 @@ Leader在任期内必须定期向集群的其他节点发送心跳包，昭告�
 2. 如果Follower在prevLogIndex位置的之日的任期号与prevLogTerm不匹配，则返回(true, false);否则继续步骤3
 3. Follower进行日志一致性检查
 4. 添加任何在已有的日志中不存在的条目，删除多余的条目
-5. 如果leaderCommit > commitIndex,则将commitIndex(Follower自己本地维护的已提交的日志条目)更新为min{leaderCommit,currentCommitIndex}，即信任Leader的数据乐观地将不呢地已经提交日志的索引值”跃进“到领导人为该Follower跟踪的那个值(除非leaderCommit比本地最新的日志条蜜索引值还要大).这种场景通常发生在Follower刚从故障中恢复过来的场景。
+5. 如果leaderCommit > commitIndex,则将commitIndex(Follower自己本地维护的已提交的日志条目)更新为min{leaderCommit,currentCommitIndex}，即信任Leader的数据乐观地将不呢地已经提交日志的索引值”跃进“到领导人为该Follower跟踪的那个值(除非leaderCommit比本地最新的日志条目索引值还要大).这种场景通常发生在Follower刚从故障中恢复过来的场景。
 
 ## 安全性 Q & A
 > 选举
@@ -168,9 +168,6 @@ Raft的快照有如下特点
 2. 存储了节点某一时刻复制状态机的状态
 3. 全量式，非增量式(即使数据没有发生改变)
 4. 在快照中存储少量元数据，比如，被快照取代的最后一个日志条目的索引位置和对应的任期号
-
-
-
 
 ### InstallSnapshot RPC
 
